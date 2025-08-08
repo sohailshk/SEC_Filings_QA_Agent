@@ -1,0 +1,39 @@
+# SEC Filings QA Agent - Requirements
+
+# Core Flask and web framework
+flask
+flask-cors
+requests
+python-dotenv
+
+# LangChain ecosystem for document processing and Q&A
+langchain
+langchain-community
+langchain-google-genai
+
+# Vector database and embeddings (FAISS + sentence transformers)
+faiss-cpu
+sentence-transformers
+
+# NLP and ML libraries
+transformers
+torch
+
+# SEC API integration
+sec-api
+
+# Database (SQLite is built into Python)
+# For enhanced SQLite features if needed later
+# sqlite-utils==3.35
+
+# Data processing and document handling
+pandas
+numpy
+beautifulsoup4
+lxml
+pypdf2
+
+# Development and testing
+pytest
+black
+flake8
