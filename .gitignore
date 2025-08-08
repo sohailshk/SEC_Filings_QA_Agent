@@ -6,9 +6,15 @@ __pycache__/
 # C extensions
 *.so
 
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
 # Distribution / packaging
 .Python
 env/
+venv/
 build/
 develop-eggs/
 dist/
@@ -60,10 +66,25 @@ coverage.xml
 
 # Logs
 *.log
+app.log
 
 # Data and model files
 data/
-app.log
+data/**
+data/*.db
+data/**/*.db
+data/**/*.bin
+data/**/*.pkl
+data/**/*.npy
+data/**/*.npz
+
+# Vector index and model files
+vector_index/
+vector_index/**
+*.bin
+*.pkl
+*.npy
+*.npz
 
 # OS files
 .DS_Store
