@@ -18,7 +18,14 @@ A production-ready, enterprise-scale question-answering system that analyzes SEC
 - **🔍 Filings**: 10-K, 10-Q, 8-K across multiple years
 - **⚡ Speed**: Sub-second query responses on massive dataset
 - **🎯 Accuracy**: Precise source attribution for all answers
-
+<div>
+    <a href="https://www.loom.com/share/5664ce714d9f465ab4b7eeac45957ef2">
+      <p>SEC Filings QA Agent - Google Chrome - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/5664ce714d9f465ab4b7eeac45957ef2">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/5664ce714d9f465ab4b7eeac45957ef2-fb429235aec26d5d-full-play.gif">
+    </a>
+  </div>
 ## 🚀 Key Capabilities
 
 ### Multi-Company Analysis
