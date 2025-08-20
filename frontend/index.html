@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEC Filings QA Agent</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body class="light-theme">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>SEC Filings QA Agent</h1>
+                </div>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-content">
+                    <h2>Ask Questions About SEC Filings</h2>
+                    <p>Get instant answers from SEC filings using AI-powered semantic search across company documents.</p>
+                </div>
+            </section>
+
+            <!-- Quick Stats -->
+            <section class="stats-section" id="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="companies-count">-</div>
+                            <div class="stat-label">Companies</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="filings-count">-</div>
+                            <div class="stat-label">Filings</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="vectors-count">-</div>
+                            <div class="stat-label">Documents</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="last-updated">-</div>
+                            <div class="stat-label">Last Updated</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Question Form -->
+            <section class="question-section">
+                <div class="question-form-container">
+                    <form id="question-form" class="question-form">
+                        <div class="form-group">
+                            <label for="question">Your Question</label>
+                            <textarea 
+                                id="question" 
+                                name="question" 
+                                placeholder="e.g., What are Apple's main risk factors? or Compare R&D spending between Apple and Microsoft"
+                                required
+                                maxlength="1000"
+                                rows="3"
+                            ></textarea>
+                            <div class="char-counter">
+                                <span id="char-count">0</span>/1000
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ticker">Company (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    id="ticker" 
+                                    name="ticker" 
+                                    placeholder="e.g., AAPL, MSFT, GOOGL"
+                                    maxlength="10"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="filing-type">Filing Type (Optional)</label>
+                                <select id="filing-type" name="filing_type">
+                                    <option value="">All Types</option>
+                                    <option value="10-K">10-K (Annual Report)</option>
+                                    <option value="10-Q">10-Q (Quarterly Report)</option>
+                                    <option value="8-K">8-K (Current Report)</option>
+                                    <option value="DEF 14A">DEF 14A (Proxy Statement)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="k-value">Results</label>
+                                <select id="k-value" name="k">
+                                    <option value="3">3 chunks</option>
+                                    <option value="5" selected>5 chunks</option>
+                                    <option value="7">7 chunks</option>
+                                    <option value="10">10 chunks</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="submit-btn">
+                            <i class="fas fa-search"></i>
+                            <span>Ask Question</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="results-section" style="display: none;">
+                <div class="results-container">
+                    <div class="results-header">
+                        <h3>Answer</h3>
+                        <div class="results-meta" id="results-meta"></div>
+                    </div>
+                    
+                    <div class="answer-content" id="answer-content">
+                        <!-- Answer will be inserted here -->
+                    </div>
+                    
+                    <div class="sources-section" id="sources-section">
+                        <h4>Sources</h4>
+                        <div class="sources-list" id="sources-list">
+                            <!-- Sources will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading Section -->
+            <section class="loading-section" id="loading-section" style="display: none;">
+                <div class="loading-content">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="loading-text">Analyzing SEC filings...</div>
+                    <div class="loading-subtext">This may take a few seconds</div>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="error-section" style="display: none;">
+                <div class="error-content">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="error-message" id="error-message"></div>
+                    <button class="retry-btn" id="retry-btn">
+                        <i class="fas fa-redo"></i>
+                        Try Again
+                    </button>
+                </div>
+            </section>
+
+            <!-- Example Questions -->
+            <section class="examples-section">
+                <h3>Example Questions</h3>
+                <div class="examples-grid">
+                    <div class="example-card" data-question="What are Apple's key risk factors in their latest 10-K filing?" data-ticker="AAPL" data-filing="10-K">
+                        <div class="example-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="example-content">
+                            <div class="example-title">Risk Analysis</div>
+                            <div class="example-text">What are Apple's key risk factors?</div>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card" data-question="Compare R&D spending trends between Apple and Microsoft" data-ticker="" data-filing="">
+                        <div class="example-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="example-content">
+                            <div class="example-title">Company Comparison</div>
+                            <div class="example-text">Compare R&D spending between companies</div>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card" data-question="What are the most commonly cited risk factors across technology companies?" data-ticker="" data-filing="">
+                        <div class="example-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="example-content">
+                            <div class="example-title">Industry Analysis</div>
+                            <div class="example-text">Common risks across tech sector</div>
+                        </div>
+                    </div>
+                    
+                    <div class="example-card" data-question="How do technology companies describe their competitive advantages?" data-ticker="" data-filing="">
+                        <div class="example-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="example-content">
+                            <div class="example-title">Competitive Analysis</div>
+                            <div class="example-text">Tech companies' competitive advantages</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Process Filings Section -->
+            <section class="process-section">
+                <div class="process-container">
+                    <h3>Process New Filings</h3>
+                    <p>Add new SEC filings to the database for analysis</p>
+                    
+                    <form id="process-form" class="process-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="process-ticker">Company Ticker</label>
+                                <input 
+                                    type="text" 
+                                    id="process-ticker" 
+                                    name="ticker" 
+                                    placeholder="e.g., AAPL"
+                                    required
+                                    maxlength="10"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="process-filing-type">Filing Type</label>
+                                <select id="process-filing-type" name="filing_type" required>
+                                    <option value="8-K">8-K (Current Report)</option>
+                                    <option value="10-Q">10-Q (Quarterly Report)</option>
+                                    <option value="10-K">10-K (Annual Report)</option>
+                                    <option value="DEF 14A">DEF 14A (Proxy Statement)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="process-limit">Number of Filings</label>
+                                <select id="process-limit" name="limit">
+                                    <option value="1">1 filing</option>
+                                    <option value="3">3 filings</option>
+                                    <option value="5" selected>5 filings</option>
+                                    <option value="10">10 filings</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="process-btn" id="process-btn">
+                            <i class="fas fa-plus"></i>
+                            <span>Process Filings</span>
+                        </button>
+                    </form>
+                    
+                    <div class="process-results" id="process-results" style="display: none;">
+                        <!-- Process results will be inserted here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>&copy; 2025 SEC Filings QA Agent. Built with Flask, FAISS, and Google Gemini.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" id="health-check">Health Check</a>
+                    <a href="#" id="system-status">System Status</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="static/js/app.js"></script>
+</body>
+</html>

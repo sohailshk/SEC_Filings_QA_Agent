@@ -62,28 +62,48 @@ class QAService:
     def setup_prompts(self):
         """Setup prompt templates for different Q&A scenarios."""
         
-        # Main Q&A prompt for single document questions
+        # Main Q&A prompt for structured financial analysis
         self.qa_prompt = PromptTemplate(
             input_variables=["context", "question", "company_info"],
-            template="""You are a financial analyst assistant specializing in SEC filings analysis. 
-            
-Company Information:
+            template="""You are a senior financial analyst specializing in SEC filings analysis. Your task is to provide well-structured, professional analysis.
+
+COMPANY INFORMATION:
 {company_info}
 
-Context from SEC Filing:
+CONTEXT FROM SEC FILINGS:
 {context}
 
-Question: {question}
+QUESTION: {question}
 
-Instructions:
+INSTRUCTIONS:
 1. Provide a comprehensive answer based ONLY on the information provided in the context
-2. If the context doesn't contain enough information to answer the question, clearly state this
-3. Always cite specific sections or parts of the filing that support your answer
-4. Use clear, professional language appropriate for financial analysis
-5. If you mention any financial figures, include the specific context (time period, etc.)
-6. Structure your response with clear paragraphs
+2. Structure your response using clear markdown formatting with:
+   - Main headings (##) for major topics
+   - Subheadings (###) for subtopics
+   - Bullet points (-) for key details
+   - Bold text (**text**) for emphasis on important figures and company names
+3. Organize information by company when analyzing multiple companies
+4. Include specific financial figures with time periods in bold
+5. Always cite sources using the format (Source X) after each key point
+6. If information is insufficient, clearly state what's missing
+7. Use professional financial language appropriate for executive-level reporting
 
-Answer:"""
+ANSWER FORMAT:
+## Executive Summary
+[Brief overview of key findings]
+
+## Detailed Analysis
+### [Topic/Company Name]
+- **Key Point 1:** [Description] (Source X)
+- **Financial Figure:** [Amount and period] (Source X)
+
+[Continue with structured analysis...]
+
+## Key Takeaways
+- [Summary point 1]
+- [Summary point 2]
+
+ANSWER:"""
         )
         
         # Prompt for summarizing document sections
@@ -252,30 +272,73 @@ Extracted Information:"""
         Returns:
             Dict[str, Any]: Formatted response
         """
+        # Clean the answer text
+        cleaned_answer = self.clean_answer_text(answer)
+        
         # Extract source information for attribution
         source_references = []
         for i, chunk in enumerate(sources):
             metadata = chunk.get('metadata', {})
+            
+            # Get similarity score and convert to confidence percentage
+            similarity_score = chunk.get('similarity_score', 0.0)
+            confidence = min(similarity_score, 1.0)  # Ensure it's between 0 and 1
+            
             source_ref = {
                 'source_id': i + 1,
+                'ticker': metadata.get('ticker', 'Unknown'),
                 'filing_type': metadata.get('filing_type', 'Unknown'),
                 'filing_date': metadata.get('filing_date', 'Unknown'),
                 'section_name': metadata.get('section_name'),
-                'similarity_score': chunk.get('similarity_score', 0.0),
+                'text': chunk.get('text', 'No excerpt available'),
+                'confidence': confidence,
+                'similarity_score': similarity_score,
                 'chunk_index': metadata.get('chunk_index', 0)
             }
             source_references.append(source_ref)
-        
+
         return {
             'question': question,
-            'answer': answer.strip(),
+            'answer': cleaned_answer,
             'company_info': company_info,
             'sources': source_references,
-            'confidence_indicators': self.assess_answer_confidence(answer, sources),
+            'confidence_indicators': self.assess_answer_confidence(cleaned_answer, sources),
             'timestamp': datetime.now().isoformat(),
             'model_used': self.model_name,
             'num_sources_used': len(sources)
         }
+    
+    def clean_answer_text(self, answer: str) -> str:
+        """
+        Clean and structure answer text for better readability while preserving formatting.
+        
+        Args:
+            answer (str): Raw answer text
+            
+        Returns:
+            str: Cleaned and structured answer text
+        """
+        if not answer:
+            return "No answer available"
+        
+        # First, clean up any malformed markdown
+        cleaned = answer.strip()
+        
+        # Fix common markdown issues
+        cleaned = re.sub(r'\*\*([^*]+)\*\*', r'**\1**', cleaned)  # Fix bold formatting
+        cleaned = re.sub(r'^\s*#+\s*', '## ', cleaned, flags=re.MULTILINE)  # Standardize headers
+        
+        # Ensure proper spacing around sections
+        cleaned = re.sub(r'\n\s*\n\s*\n+', '\n\n', cleaned)  # Remove excessive newlines
+        cleaned = re.sub(r'([.!?])\s*([A-Z##])', r'\1\n\n\2', cleaned)  # Add breaks after sentences before headers
+        
+        # Ensure bullet points are properly formatted
+        cleaned = re.sub(r'\n\s*[-•]\s*', '\n- ', cleaned)
+        
+        # Clean up source citations
+        cleaned = re.sub(r'\(Source\s+(\d+)[^)]*\)', r'(Source \1)', cleaned)
+        
+        return cleaned if cleaned else "No answer available"
     
     def assess_answer_confidence(self, answer: str, sources: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

@@ -1,50 +1,49 @@
 # SEC Filings QA Agent - Requirements
-# Production-ready dependencies for 412K+ vector SEC filings analysis system
 
 # Core Flask and web framework
-flask==3.0.0
+flask==2.3.3
 flask-cors==4.0.0
 requests==2.31.0
 python-dotenv==1.0.0
 
-# Document processing and parsing
-beautifulsoup4==4.12.2
-lxml==4.9.3
-html5lib==1.1
+# LangChain ecosystem for document processing and Q&A
+langchain==0.0.325
+langchain-community==0.0.6
+langchain-google-genai==0.0.6
 
 # Vector database and embeddings (FAISS + sentence transformers)
 faiss-cpu==1.7.4
 sentence-transformers==2.2.2
-numpy==1.24.3
-
-# Google Gemini AI integration
-google-generativeai==0.3.2
 
 # NLP and ML libraries
 transformers==4.35.2
-torch==2.1.0
-scikit-learn==1.3.1
-
-# Optional: Enhanced functionality
-# langchain  # If using LangChain components
-# langchain-community
-# langchain-google-genai
+torch==2.1.1
 
 # SEC API integration
-sec-api
+sec-api==1.0.17
 
 # Database (SQLite is built into Python)
 # For enhanced SQLite features if needed later
 # sqlite-utils==3.35
 
 # Data processing and document handling
-pandas
-numpy
-beautifulsoup4
-lxml
-pypdf2
+pandas==2.1.3
+numpy==1.24.3
+beautifulsoup4==4.12.2
+lxml==4.9.3
+pypdf2==3.0.1
+
+# Production server
+gunicorn==21.2.0
 
 # Development and testing
-pytest
-black
-flake8
+pytest==7.4.3
+pytest-cov==4.1.0
+black==23.10.1
+flake8==6.1.0
+
+# UI Testing (optional - install separately if needed)
+# selenium==4.15.2
+
+# Performance testing
+# locust==2.17.0

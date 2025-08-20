@@ -8,7 +8,7 @@ Author: Built step-by-step following best practices
 Date: August 2025
 """
 
-from flask import Flask
+from flask import Flask, render_template, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -30,8 +30,10 @@ def create_app():
         Flask: Configured Flask application instance
     """
     
-    # Initialize Flask application
-    app = Flask(__name__)
+    # Initialize Flask application with template and static folders
+    app = Flask(__name__, 
+                template_folder='frontend',
+                static_folder='frontend/static')
     
     # Enable CORS for frontend integration (if needed later)
     CORS(app)
@@ -100,9 +102,15 @@ def register_blueprints(app):
     # Register API routes
     app.register_blueprint(api_bp)
     
-    # Add a simple root route
+    # Add frontend routes
     @app.route('/')
     def index():
+        """Serve the main frontend interface"""
+        return render_template('index.html')
+    
+    @app.route('/api')
+    def api_info():
+        """API information endpoint"""
         return {
             'message': 'SEC Filings QA Agent API',
             'version': '1.0.0',
